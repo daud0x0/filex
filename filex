@@ -1,71 +1,49 @@
 #!/bin/python3
-
-from cryptography.fernet import Fernet
 import argparse
+from cryptography.fernet import Fernet
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--key", "-key", help="give the key to decrypt file")
-parser.add_argument( "file",  help="give filename to stdout")
-args = parser.parse_args()
-
-def read_key(filename):
-    with open(filename, "rb") as file:
-        return file.read()
-
-def read_encrypt_data(filename):
-    with open(filename, "rb") as file:
-        return file.read()
-
-def do_decrypt_data(encrypt_data, key):
-    fernet = Fernet(key)
-    return fernet.decrypt(encrypt_data)
-
-def write_decrypt_data(filename, decrypt_data):
-    with open(filename, "wb") as file:
-        file.write(decrypt_data)
-    
-
-def read_plain_data(filename):
-    with open(filename, "rb") as file:
-        return file.read()
-
-def write_key(key):
+def generate_key():
+    """Generates a new encryption key and writes it to the file 'key'"""
+    key = Fernet.generate_key()
     with open("key", "wb") as file:
         file.write(key)
+    return key
 
-def encrypt_data(key, plain_data):
+def read_key(key_file):
+    """Reads the encryption key from a file"""
+    try:
+        with open(key_file, "rb") as file:
+            return file.read()
+    except FileNotFoundError as e:
+        print(f"Error: {key_file} not found. Generating a new key...")
+        return generate_key()
+
+def encrypt_file(filename, key):
+    """Encrypts the contents of a file with the provided key"""
     fernet = Fernet(key)
-    return fernet.encrypt(plain_data)
-
-def write_encrypt_data(filename, encrypt_data):
+    with open(filename, "rb") as file:
+        plain_data = file.read()
+    encrypted_data = fernet.encrypt(plain_data)
     with open(filename, "wb") as file:
-        file.write(encrypt_data)
+        file.write(encrypted_data)
+
+def decrypt_file(filename, key):
+    """Decrypts the contents of a file with the provided key"""
+    fernet = Fernet(key)
+    with open(filename, "rb") as file:
+        encrypted_data = file.read()
+    decrypted_data = fernet.decrypt(encrypted_data)
+    with open(filename, "wb") as file:
+        file.write(decrypted_data)
 
 if __name__ == "__main__":
-    filename = args.file
-    if args.key:
-        # get the key 
-        key = read_key(args.key)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="File to be encrypted or decrypted")
+    parser.add_argument("--key", "-key", help="Key file to be used for decryption")
+    args = parser.parse_args()
 
-        # get encrypt data from file
-        encrypt_data = read_encrypt_data(filename)
-        
-        # decrypt the data
-        decrypt_data = do_decrypt_data(encrypt_data, key)
-
-        # write decrypt data to the original file
-        write_decrypt_data(filename, decrypt_data)
-
+    key = None if args.key is None else read_key(args.key)
+    if key:
+        decrypt_file(args.file, key)
     else:
-        plain_data = read_plain_data(filename)
-        # generate key 
-        key = Fernet.generate_key()
-
-        # write key to the file
-        write_key(key)
-
-        # encrypt data 
-        encrypt_data = encrypt_data(key, plain_data)
-
-        # write encrypt data to the original file
-        write_encrypt_data(filename, encrypt_data)
+        encrypt_file(args.file, generate_key())
