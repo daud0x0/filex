@@ -8,16 +8,18 @@ filex is a simple command line tool that can encrypt and decrypt files using the
     $ python3 -r requirements.txt
 
 ## Usage
-    The filex tool is run from the command line and accepts two arguments:
-    - The -key or --key option is used to provide a key file for decryption. If the option is not provided, the tool will encrypt the file instead.
-    - The FILE argument is the name of the file to be encrypted or decrypted.
+- The -key or --key option is used to provide a key file for decryption. If the option is not provided, the tool will encrypt the file instead.
+- The FILE argument is the name of the file to be encrypted or decrypted.
 
 ## Encrypting a File
-To encrypt a file, simply run filex without the -key option, and provide the file name as an argument:
+- To encrypt a file, simply run filex without the -key option, and provide the file name as an argument:
+
     $ python3 filex.py file.txt
-The tool will generate a new key and write it to a file called key. It will then encrypt the contents of file.txt and overwrite the original file with the encrypted data.
+- The tool will generate a new key and write it to a file called key. It will then encrypt the contents of file.txt and overwrite the original file with the encrypted data.
 
 ## Decrypting a File
-To decrypt a file, run filex with the -key option, and provide the file name and key file as arguments:
+- To decrypt a file, run filex with the -key option, and provide the file name and key file as arguments:
+
     $ python3 filex.py -key key file.txt
-The tool will read the key from the key file, use it to decrypt the contents of file.txt, and overwrite the original file with the decrypted data.
+
+- The tool will read the key from the key file, use it to decrypt the contents of file.txt, and overwrite the original file with the decrypted data.
